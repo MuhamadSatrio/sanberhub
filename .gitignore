@@ -1,0 +1,4 @@
+!.gitignore
+venv_maxxi_dev
+*.pyc
+venv*/
