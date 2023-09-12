@@ -21,6 +21,7 @@ from . import config as CFG
 # from .contoh_blueprint.controllers import contoh_blueprint
 from .user.controllers import user
 from .pegawai.controllers import pegawai
+from .petani.controllers import petani
 
 #region >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> CONFIGURATION <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 app = Flask(__name__, static_url_path=None) #panggil modul flask
@@ -178,5 +179,6 @@ def not_found(error):
 
 app.register_blueprint(user, url_prefix='/user')
 app.register_blueprint(pegawai, url_prefix='/pegawai')
+app.register_blueprint(petani, url_prefix='/petani')
 
 #--------------------- END REGISTER BLUEPRINT ------------------------
