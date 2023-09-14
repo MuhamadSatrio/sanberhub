@@ -2,14 +2,22 @@ import json
 import os
 from . import config as CFG
 import mysql.connector
+import psycopg2
 
 #koneksi ke database
 def conn(user=CFG.DB_USER, password=CFG.DB_PASSWORD, host=CFG.DB_HOST, database=CFG.DB_NAME):
-	conn = mysql.connector.connect(
-		host=host,
+	# conn = mysql.connector.connect(
+	# 	host=host,
+	# 	user=user,
+	# 	passwd=password,
+	# 	database=database
+	# )
+	conn = psycopg2.connect(
+		database=database, 
 		user=user,
-		passwd=password,
-		database=database
+        password=password, 
+		host=host, 
+		port="5432"
 	)
 	return conn
 
@@ -40,13 +48,13 @@ def select_limit(query, values, conn, page=1):
 	mycursor = conn.cursor()
 	page = int(page)
 	lim = 0
-	off = 10
+	off = 0
 	if page == 1:
-		lim = 0
+		lim = 10
 	else: 
-		lim = (page-1) * 10
+		lim = (page) * 10
 	# return query + " limit "+str(lim)+", "+str(off)
-	mycursor.execute(query + " limit "+str(lim)+", "+str(off) , values)
+	mycursor.execute(query + " limit "+str(lim)+" offset "+str(off) , values)
 	row_headers = [x[0] for x in mycursor.description]
 	myresult = mycursor.fetchall()
 	json_data = []

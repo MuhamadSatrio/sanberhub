@@ -1,7 +1,7 @@
 import os
 
 #General
-PRODUCT_NAME = "Maxxi Tani"
+PRODUCT_NAME = "Sanberhub"
 PRODUCT_ENVIRONMENT = "DEV" # DEV/PROD
 
 IS_USE_VENV = "YES" # YES/NO

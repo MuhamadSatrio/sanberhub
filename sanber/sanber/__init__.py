@@ -1,17 +1,11 @@
 # -*- coding: utf-8 -*-
-import sys
 from flask import Flask, jsonify, request, make_response, render_template, redirect
 from flask_jwt_extended import create_access_token, get_jwt, jwt_required, JWTManager
 from flask_cors import CORS, cross_origin
 from werkzeug.utils import secure_filename
 from time import gmtime, strftime
-import json
 import datetime
 import os
-import base64
-import random
-import hashlib
-import warnings
 
 from . data import Data
 from . import config as CFG
@@ -19,9 +13,8 @@ from . import config as CFG
 
 ## IMPORT BLUEPRINT
 # from .contoh_blueprint.controllers import contoh_blueprint
-from .user.controllers import user
-from .pegawai.controllers import pegawai
-from .petani.controllers import petani
+from .nasabah.controllers import nasabah
+from .mutasi.controllers import mutasi
 
 #region >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> CONFIGURATION <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 app = Flask(__name__, static_url_path=None) #panggil modul flask
@@ -87,64 +80,6 @@ def tambahLogs(logs):
 	f.write(logs)
 	f.close()
 
-#endregion >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> FUNCTION AREA <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-
-#region >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> AUTH AREA (JWT) <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-@app.route("/login", methods=["POST"])
-@cross_origin()
-def login_customer():
-	ROUTE_NAME = request.path
-
-	data = request.json
-	if "email" not in data:
-		return parameter_error("Missing email in Request Body")
-	if "password" not in data:
-		return parameter_error("Missing password in Request Body")
-
-	email = data["email"]
-	password = data["password"]
-
-	email = email.lower()
-	password_enc = hashlib.md5(password.encode('utf-8')).hexdigest() # Convert password to md5
-
-	# Check credential in database
-	dt = Data()
-	query = """ SELECT b.id_user, b.email, b.password
-			FROM user b
-			WHERE b.email = %s """
-	values = (email, )
-	data_user = dt.get_data(query, values)
-	if len(data_user) == 0:
-		return defined_error("Email not Registered", "Invalid Credential", 401)
-	data_user = data_user[0]
-	db_id_user = data_user["id_user"]
-	db_password = data_user["password"]
-
-	if password_enc != db_password:
-		return defined_error("Wrong Password", "Invalid Credential", 401)
-
-	role = 21
-	role_desc = "CUSTOMER"
-
-	jwt_payload = {
-		"id_user" : db_id_user,
-		"role" : role,
-		"role_desc" : role_desc,
-		"email" : email
-	}
-
-	access_token = create_access_token(email, additional_claims=jwt_payload)
-
-
-	try:
-		logs = secure_filename(strftime("%Y-%m-%d %H:%M:%S"))+" - "+ROUTE_NAME+" - id_user = "+str(db_id_user)+" - roles = "+str(role)+"\n"
-	except Exception as e:
-		logs = secure_filename(strftime("%Y-%m-%d %H:%M:%S"))+" - "+ROUTE_NAME+" - id_user = NULL - roles = NULL\n"
-	tambahLogs(logs)
-
-	return jsonify(access_token=access_token)
 
 #endregion >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> AUTH AREA (JWT) <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -177,8 +112,7 @@ def not_found(error):
 
 #--------------------- REGISTER BLUEPRINT ------------------------
 
-app.register_blueprint(user, url_prefix='/user')
-app.register_blueprint(pegawai, url_prefix='/pegawai')
-app.register_blueprint(petani, url_prefix='/petani')
+app.register_blueprint(nasabah, url_prefix='/nasabah')
+app.register_blueprint(mutasi, url_prefix='/mutasi')
 
 #--------------------- END REGISTER BLUEPRINT ------------------------
